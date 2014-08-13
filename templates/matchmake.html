@@ -1,0 +1,49 @@
+
+{% extends "layout.html" %}
+{% block content %}
+
+<title>matchmake</title>
+
+  <head>
+    <title>Matchmaker</title>
+  </head>
+  <body>
+  	<form action = "/home/{{ user.id }}" method=post>
+    <input type="hidden" value={{ user.id }} name="user_id" >
+    <div>
+      <input type=submit value="Home">
+    </div>
+</form>
+  </body>
+  
+  <h1>Matchmake!</h1>
+  {% if error == "no pairs" %}
+  <h1> No pair available </h1>
+  {% else %}
+
+  <h1> Do you think {{ next_pair.get_usernames()[0]}} and {{ next_pair.get_usernames()[1] }} should be a pair? </h1>
+
+
+  <h2>Description for {{ next_pair.get_usernames()[0] }} is "{{ descriptions[0] }}"</h2>
+  <h2>Description for {{ next_pair.get_usernames()[1] }} is "{{ descriptions[1] }}"</h2>
+
+
+    <form action="/happy/{{ user.id }}" method="post" name="Hmm...yes!">
+            <input type="hidden" value={{ user.id }} name="user_id" >
+            <input type="hidden" value={{ pair_matched }} name="pair_just_shown">
+            <input type="hidden" value={{ pair_id }} name="pair_shown_id">
+            <input type="hidden" value="yes" name="did_we_match">
+          <p><input type="submit" value="Hmm..yes!"></p>
+      </form>
+      <form action="/sad/{{ user.id }}" method="post" name="Err..No!!">
+            <input type="hidden" value={{ user.id }} name="user_id" >
+            <input type="hidden" value={{ pair_matched }} name="pair_just_shown">
+            <input type="hidden" value={{ pair_id }} name="pair_shown_id">
+            <input type="hidden" value="no" name="did_we_match">
+          <p><input type="submit" value="Err..No!!"></p>
+      </form>
+
+  {% endif %}
+  {% endblock %}
+
+

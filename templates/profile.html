@@ -1,0 +1,36 @@
+
+{% extends "layout.html" %}
+{% block content %}
+
+<title>profile</title>
+
+  <head>
+   <title>Matchmaker</title>
+  </head>
+  <body>
+  <form action = "/home/{{ user.id }}" method=post>
+    <input type="hidden" value={{ user.id }} name="user_id" >
+    <div>
+      <input type=submit value="Home"></div>
+</form>
+  </body>
+
+  <h1>Your Profile!</h1>
+
+  <h2>My Name: {{ user.username }} </h2>
+  <h2>My email: {{ user.email }} </h2>
+  <h2>My description: {{ user.user_description }} </h2>
+______________________________________
+  <h2> Matches I've made: </h2>
+  {% for match in user.matches_as_wingman() %}
+      <p> - {{ match.get_usernames()[0] }} and {{ match.get_usernames()[1] }} </p>
+            <form action = "/match/{{ match.id }}" method=post>
+            <input type="hidden" value={{ user.id }} name="user_id">
+            <input type="hidden" value={{ match.id }} name="match_id">
+            <input type=submit value="Wingman This Match"></div>
+          </form>
+  {% endfor %}
+    <button>Initiate 3-way call (dummy button)</button>
+
+
+  {% endblock %}

@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<body>
+        <div id="container">
+			<h1>Would you like to get started?</h1>
+			<form action="/home/{{ user.id }}" method="post" name="continue">
+				   <input type="hidden" value={{ user.id }} name="user_id" >
+			    <p><input type="submit" value="Continue"></p>
+			</form>
+        </div>
+    </body>
+
+ {% endblock %}

@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<title>home</title>
+{% if user %}
+  <h1>Hello {{ user.username }}!</h1>
+{% else %}
+  <h1>Hello User!</h1>
+{% endif %}
+<!--here include all fields we wish to carry through-->
+  <form action="/profile/{{ user.id }}" method="post" name="profile">
+  <input type="hidden" value={{ user.id }} name="user_id" >
+  <p><input type="submit" value="My Profile"></p>
+  </form>
+  <form action="/matches/{{ user.id }}" method="post" name="matches">
+  <input type="hidden" value={{ user.id }} name="user_id" >
+  <p><input type="submit" value="My Matches"></p>
+  </form>
+  <form action="/matchmake/{{ user.id }}" method="post" name="matchmake">
+  <input type="hidden" value={{ user.id }} name="user_id" >
+  <p><input type="submit" value="Matchmake!"></p>
+  </form>
+
+  <form action="/" method="post" name="stop">____________
+	<p><input type="submit" value="Stop Matchmaking"></p>
+  </form>
+
+  {% endblock %}

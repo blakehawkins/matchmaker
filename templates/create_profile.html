@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2>Get started on MetaMatch!</h2>
+  <p>
+  <form action="/intermediate" method=post>
+    <dl>
+      <dt>Name:
+      <dd><input type=text name=name size=30 value="{{ request.values.name }}">
+      <dt>E-Mail:
+      <dd><input type=text name=email size=30 value="{{ request.values.email }}">
+      <dt>Description:
+      <dd><input type=text name=user_description size=50 value="{{ request.values.user_description }}">
+    </dl>
+    <p>
+      <!-- assign user id somewhere here -->
+      <input type=submit value="Get started">
+      <input type=hidden name=name value="{{ request.values.name }}">
+      <input type=hidden name=email value="{{ request.values.email }}">
+      <input type=hidden name=userid value="userid_assigned">
+      <input type=hidden name=user_description value="{{ request.values.user_description }}">
+  </form>
+  <p>
+    If you don't want to proceed, you can go back <a href="/logout">to main menu</a>.
+{% endblock %}

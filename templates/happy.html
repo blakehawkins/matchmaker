@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+
+
+  <h2> You have just matched {{ pair_matched.get_usernames()[0]}} and {{ pair_matched.get_usernames()[1] }} </h2>
+
+  <form action="/matchmake/{{ user.id }}" method="post" name="matchmakeagain">
+  <input type="hidden" value={{ user.id }} name="user_id" >
+  <form type="hidden" value={{ pair_matched.id }} name="pair_matched_id">
+  	<!-- so that we can use pair's id on the next page to add this pair to matched list-->
+  <p><input type="submit" value="continue matchmaking"></p>
+
+  {% endblock %}

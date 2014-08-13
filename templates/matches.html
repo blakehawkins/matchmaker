@@ -1,0 +1,32 @@
+
+{% extends "layout.html" %}
+{% block content %}
+
+<title>matches</title>
+
+  <head>
+   <title>Matchmaker</title>
+  </head>
+  <body>
+  	<form action = "/home/{{ user.id }}" method=post>
+    <input type="hidden" value={{ user.id }} name="user_id" >
+    <div>
+      <input type=submit value="Home"></div>
+</form>
+  </body>
+  <!-- if some list "matches" is non empty, lists buttons with links to profiles of matches-->
+  {% if user.get_match_list()!=[] %}
+  <h1>Your Matches!</h1>
+  	  {% for match in user.get_match_list() %}
+          <form action = "/match/{{ match.id }}" method=post>
+            <input type="hidden" value={{ user.id }} name="user_id">
+            <input type="hidden" value={{ match.id }} name="match_id">
+            <input type=submit value="{{ match.get_usernames()[0] }} and {{ match.get_usernames()[1] }}"></div>
+          </form>
+      {% endfor %}
+  {% else %}
+       <h2>Sorry! You have no matches</h2>
+  {% endif %}
+
+  {% endblock %}
+  

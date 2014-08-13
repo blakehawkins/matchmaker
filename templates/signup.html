@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<title>signup</title>
+
+<html>
+    <head>
+        <style type="text/css">
+ 
+            body {font-family:Arial, Sans-Serif;}
+ 
+            #container {width:300px; margin:0 auto;}
+            form label {display:inline-block; width:140px;}
+            form input[type="text"],
+            form input[type="password"],
+            form input[type="email"] {width:160px;}
+ 
+            form .line {clear:both;}
+            form .line.submit {text-align:right;}
+ 
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <form action="/create-profile">
+                <h1>SIGN UP</h1>
+                <div class="line"><label for="email">Email: </label><input type="text" id="email" /></div>
+                <div class="line"><label for="pwd">Password: </label><input type="password" id="pwd" /></div>
+                <!-- You may want to consider adding a "confirm" password box also -->
+
+                <div class="line submit"><input type="submit" value="Submit"></div>
+            </form>
+        </div>
+    </body>
+</html>
+
+{% endblock %}

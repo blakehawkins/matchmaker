@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<form action = "/home/{{ user.id }}" method=post>
+    <input type="hidden" value={{ user.id }} name="user_id" >
+    <div>
+      <input type=submit value="Home">
+    </div>
+</form>
+
+<h1> Match page for {{ match.get_usernames()[0] }} and {{ match.get_usernames()[1] }} </h1>
+
+<!-- conversation -->
+{% for i in range(conversation_length) %}
+<h2>{{ conversation_messages[i] }}</h2>
+{% endfor %}
+<form action="/addingmessage" method=post>
+    <dl>
+      <dt>Add Message {{ x }}:
+      <dd><input type=text name=message size=30 value="{{ request.values.message }}">
+    </dl>
+    <p>
+      <!-- assign user id somewhere here -->
+      <input type=submit value="Send">
+      <input type=hidden name=newmessage value="{{ request.values.message }}">
+      <input type=hidden name=user_id value="{{ user.id }}">
+      <input type=hidden name=match_id value="{{ match.id }}">
+      <input type=hidden name=conversation_id value = "{{ conversation.id }}">
+  </form>
+
+{% endblock %}

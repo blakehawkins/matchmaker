@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+
+  <h2> You just said {{ pair_shown.get_usernames()[0]}} and {{ pair_shown.get_usernames()[1]}} should not be a match! </h2>
+
+  <form action="/matchmake/{{ user.id }}" method="post" name="matchmakemore">
+  <input type="hidden" value={{ user.id }} name="user_id" >
+  <p><input type="submit" value="continue matchmaking"></p>
+
+  {% endblock %}

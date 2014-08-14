@@ -5,8 +5,8 @@ from openid.extensions import pape
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+#from forms import LoginForm
 import logging
-from logging.handlers import RotatingFileHandler
 import math
 import unicodedata
 from models import db, User, Match, Pair, Conversation, Message, ExtinctCombo,\
@@ -18,22 +18,8 @@ db.drop_all()
 db.create_all()
 
 log = logging.getLogger(__name__)
-app = Flask(__name__) 
-
-@app.route('/warning')
-def foo():
-    app.logger.warning('A warning occurred (%d apples)', 42)
-    app.logger.error('An error occurred')
-    app.logger.info('Info')
-    log.debug("Heyyyaa")
-    return "foo"
- 
-if __name__ == '__main__':
-    handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
-    handler.setLevel(logging.INFO)
-    app.logger.addHandler(handler)
-    app.run()
-
+logging.basicConfig(filename="logs/main.log", level=logging.DEBUG)
+app = Flask(__name__)
 
 app.config.update(
     DATABASE_URI='sqlite:////tmp/flask-openid.db',

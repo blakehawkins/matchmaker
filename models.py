@@ -2,7 +2,10 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from random import shuffle
 import math
+import logging
 
+log = logging.getLogger(__name__)
+logging.basicConfig(filename="logs/main.log", level=logging.DEBUG)
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
@@ -121,6 +124,7 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
         self.make_pairs_for_new_user()
+        log.debug("Starting User {}".format(self))
         print self.username, "'s id is: ", self.id
 
     def get_next_pair(self):

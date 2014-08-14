@@ -1,0 +1,24 @@
+A warning occurred (42 apples)
+An error occurred
+A warning occurred (42 apples)
+An error occurred
+A warning occurred (42 apples)
+An error occurred
+A warning occurred (42 apples)
+An error occurred
+INFO:werkzeug: * Running on http://0.0.0.0:5000/
+INFO:werkzeug: * Restarting with reloader
+INFO:werkzeug: * Running on http://0.0.0.0:5000/
+INFO:werkzeug: * Restarting with reloader
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 22:52:53] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 22:53:01] "GET /create-profile HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 22:53:25] "POST /intermediate HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 22:53:42] "POST /home/1 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 22:53:42] "GET /home/static/MetaMatch.png HTTP/1.1" 404 -
+INFO:werkzeug: * Detected change in 'C:\\Users\\dominic\\Documents\\MetaMatch\\models.py', reloading
+INFO:werkzeug: * Restarting with reloader
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 22:59:21] "POST /profile/1 HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 23:00:05] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 23:00:21] "GET /create-profile HTTP/1.1" 200 -
+DEBUG:models:Starting User <User Dom>
+INFO:werkzeug:127.0.0.1 - - [14/Aug/2014 23:00:28] "POST /intermediate HTTP/1.1" 200 -

@@ -17,15 +17,17 @@
   </body>
   
   <h1>Matchmake!</h1>
+  ___________________________________________
   {% if error == "no pairs" %}
-  <h1> No pair available </h1>
+  <h1> Unfortunately there are no more pairs on the network.</h1>
+  <h4>(Maybe persuade your friends to sign up?) </h4>
   {% else %}
 
-  <h1> Do you think {{ next_pair.get_usernames()[0]}} and {{ next_pair.get_usernames()[1] }} should be a pair? </h1>
+  <h1> Would you like to match up {{ next_pair.get_usernames()[0]}} and {{ next_pair.get_usernames()[1] }}? </h1>
 
 
-  <h2>Description for {{ next_pair.get_usernames()[0] }} is "{{ descriptions[0] }}"</h2>
-  <h2>Description for {{ next_pair.get_usernames()[1] }} is "{{ descriptions[1] }}"</h2>
+  <h3>Description for {{ next_pair.get_usernames()[0] }} is "{{ descriptions[0] }}"</h3>
+  <h3>Description for {{ next_pair.get_usernames()[1] }} is "{{ descriptions[1] }}"</h3>
 
 
     <form action="/happy/{{ user.id }}" method="post" name="Hmm...yes!">

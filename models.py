@@ -129,21 +129,21 @@ class User(db.Model):
         shuffle(pair_list)
         for pair in pair_list:
             i_am_in_pair = self.id in pair.get_user_ids()
-            print "Am I in pair: ", i_am_in_pair
+            # print "Am I in pair: ", i_am_in_pair
             pair_is_a_match = pair.is_match()
-            print "Is this pair a match?", pair_is_a_match
+            # print "Is this pair a match?", pair_is_a_match
             extinct_combo = is_combo_extinct(self.id, pair.id)
             if extinct_combo is not False:
                 pair_seen_by_me = True
             else:
                 pair_seen_by_me = False
-            print "Pair seen by me?", pair_seen_by_me
+            # print "Pair seen by me?", pair_seen_by_me
 
             if i_am_in_pair or pair_seen_by_me or pair_is_a_match:
-                print "Shouldn't be offered as a pair."
+            #    print "Shouldn't be offered as a pair."
                 pass
             else:
-                print "Offering pair: ", pair
+            #    print "Offering pair: ", pair
                 break
         else:
             error_string = "No pairs available."
@@ -168,7 +168,8 @@ class User(db.Model):
 
     def get_match_list(self):
         list_of_matches = Match.query.all()
-        print "list of matches is: {}".format(list_of_matches)
+        print "{}.get_match_list - list of matches is: {}".format(
+            self, list_of_matches)
         list_my_matches = []
         for match in list_of_matches:
             match_user_ids = match.get_user_ids()

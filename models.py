@@ -116,7 +116,6 @@ class User(db.Model):
         for user in existing_users:
             if self.id != user.id:
                 pair = Pair([user.id, self.id])
-                print "New pair about to start: ", user.id, self.id
                 pair.start()
 
     def start(self):
@@ -125,7 +124,6 @@ class User(db.Model):
         db.session.commit()
         self.make_pairs_for_new_user()
         log.debug("Starting User {}".format(self))
-        print self.username, "'s id is: ", self.id
 
     def get_next_pair(self):
         pair_list = get_pair_list()
@@ -165,8 +163,7 @@ class User(db.Model):
         db.session.commit()
 
     def make_pair_match(self, pair):
-        print "user.make_pair_match says: Pair is: ", pair
-        print "wingman_id is: ", self.id
+        log.debug("{} calling make_pair_match on pair: {}".format(self, pair))
         match = pair.pair_to_match(self.id)
         return match
 
@@ -214,10 +211,9 @@ class Pair(db.Model):
 
     def start(self):
         db.session.add(self)
-        print "Added ", self, "to db"
         db.session.commit()
-        print "Committed ", self, "to db"
-
+        log.debug("Starting pair: {}".format(self))
+        
     def is_match(self):
         return self.is_this_a_match
 
@@ -243,20 +239,15 @@ class Pair(db.Model):
         return descriptions
 
     def get_seen_by(self):
-        print "Pair.get_seen_by called on {}".format(self)
+        log.debug("get_seen_by called on {}".format(self))
         return self.seen_by
 
     def add_seen_by(self, user_id):
         self.seen_by.append(user_id)
-        print "Adding user: {} to pair: {}".format(user_id, self)
         db.session.commit()
-        print "Entering {}.add_seen_by".format(self)
-        print "self.seen_by is: ".format(self.seen_by)
-        print "self.get_seen_by() is: ".format(self.get_seen_by())
 
     def pair_to_match(self, wingman_id):
-        print "Hit pair.pair_to_match with pair and wingman: ",\
-            self, wingman_id
+        log.debug("User {} matching {}".format(wingman_id, self))
         match = Match(self, wingman_id)
         self.is_this_a_match = True
         db.session.commit()
@@ -290,25 +281,26 @@ class Match(db.Model):
 
     def start(self):
         db.session.add(self)
-        print "Added ", self, "to db"
+        # print "Added ", self, "to db"
         db.session.commit()
-        print "Committed ", self, "to db"
-        print ("<Making Conversation between: {} and" +
-               " {}>").format(self.user_ids[0], self.user_ids[1])
+        # print "Committed ", self, "to db"
+        # print ("<Making Conversation between: {} and" +
+        #       " {}>").format(self.user_ids[0], self.user_ids[1])
         conversation = Conversation(self, self.user_ids)
         conversation.start()
         self.conversation_id = conversation.id
         db.session.commit()
         convo_ids_1 = [self.wingman_id, self.user_ids[0]]
-        print "<Making Conversation between: {} and {}>".format(convo_ids_1[0],
-                                                                convo_ids_1[1])
+        # print "<Making Conversation between: {} and {}>".format(convo_ids_1[0],
+        #                                                        convo_ids_1[1])
         wingman_conversation = Conversation(self, convo_ids_1)
         wingman_conversation.start()
         self.wingman_conversation_id = wingman_conversation.id
         db.session.commit()
         convo_ids_2 = [self.wingman_id, self.user_ids[1]]
-        print "<Making Conversation between: {} and {}>".format(convo_ids_2[0],
-                                                                convo_ids_2[1])
+        log.debug("<Making Conversation between: {} and {}>".format(
+            convo_ids_2[0],
+            convo_ids_2[1]))
         wingman_conversation = Conversation(self, convo_ids_2)
         wingman_conversation.start()
         self.wingman_conversation_id = wingman_conversation.id

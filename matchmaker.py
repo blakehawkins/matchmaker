@@ -154,30 +154,22 @@ def edit_profile(user_id):
 
 @app.route("/matchmake/<user_id>", methods=['GET', 'POST'])
 def matchmake(user_id):
-    print "MATCHMAKE"
+    log.debug("MATCHMAKE")
     user_id = request.form['user_id']
     user = get_user_from_user_id(user_id)
     pair_list = get_pair_list()
-    print "List of users:  ", get_user_list()
-    print "User is: ", user
-    print "User.get_next_pair returns: ", user.get_next_pair()
     try:
         next_pair = user.get_next_pair()
         pair_id = next_pair.id
-        print "Next pair is: {} with id: {}".format(next_pair,
-                                                    pair_id)
-        print "All pairs: ", pair_list
-        print "Next pair for this user: ", next_pair
+        log.debug("Offering {} for user {}".format(next_pair, user))
         error = None
-        pair = get_pair_from_pair_id(pair_id)
+        pair = next_pair
         descriptions = pair.get_descriptions()
-        print"PAIR IS", pair
     except Exception:
         next_pair = None
         pair_id = None
         descriptions = ["nothing", "nothing"]
         error = "no pairs"
-    print "DESCRIPTIONS ARE", descriptions
     return render_template("matchmake.html", user=user, next_pair=next_pair,
                            pair_id=pair_id, error=error, 
                            descriptions=descriptions)
@@ -249,11 +241,6 @@ def intermediate():
     description = request.form['user_description']
     user = User(name, email, description)
     user.start()
-    user_id = user.id
-    print "Created user: ", user
-    print "User has id: ", user_id
-    print "User has name: ", user.username
-    print "User has email: ", user.email
     return render_template("continue.html", user=user)
 
 

@@ -1,13 +1,48 @@
-
+<!doctype html>
 <html>
-
 <head>
-<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='stylesheets/somt.css') }}"/>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='stylesheets/somt.css') }}"/>
+  <img src="./static/MetaMatch.png" height="200" width="650" align="right">
 </head> 
 
-<img src="./static/MetaMatch.png" height="200" width="650" align="right">
+<body>
 
-{% block content %}{% endblock %}
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '280638732119995',
+          xfbml      : true,
+          version    : 'v2.0'
+        });
+        FB.getLoginStatus(function(response) {
+          if (response.status === 'connected') {
+            console.log('Logged in.');
+          }
+          else {
+            FB.login();
+          }
+        });
+        FB.login(function(){
+          FB.api('/me/feed', 'post', {message: 'Hello, world!'});
+          }, {scope: 'publish_actions'});
+        };
+
+      (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+      <div
+        class="fb-like"
+        data-send="true"
+        data-width="450"
+        data-show-faces="true">
+      </div>
+    </script>
+  {% block content %}{% endblock %}
+</body>
 </html>
 
 

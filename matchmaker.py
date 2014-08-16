@@ -5,7 +5,6 @@ from openid.extensions import pape
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-#from forms import LoginForm
 import logging
 import math
 import unicodedata
@@ -77,9 +76,11 @@ def index():
 
 @app.route('/', methods=['GET', 'POST'])
 def base():
-    print "base"
     return render_template("base.html")
 
+@app.route('/facebook', methods=['GET', 'POST'])
+def facebook():
+    return render_template("facebook.html")
 
 @app.route('/login', methods=['GET', 'POST'])
 @oid.loginhandler
@@ -115,8 +116,8 @@ def create_or_login(resp):
 
 @app.route('/create-profile', methods=['GET', 'POST'])
 def create_profile():
-#    if g.user is not None or 'openid' not in session:
-#        return redirect(url_for('home'))
+    # if g.user is not None or 'openid' not in session:
+    #     return redirect(url_for('home'))
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -154,24 +155,22 @@ def edit_profile(user_id):
 
 @app.route("/matchmake/<user_id>", methods=['GET', 'POST'])
 def matchmake(user_id):
-    log.debug("MATCHMAKE")
     user_id = request.form['user_id']
     user = get_user_from_user_id(user_id)
-    pair_list = get_pair_list()
+    log.debug("MATCHMAKE {}".format(user.username))
     try:
         next_pair = user.get_next_pair()
-        pair_id = next_pair.id
         log.debug("Offering {} for user {}".format(next_pair, user))
         error = None
-        pair = next_pair
-        descriptions = pair.get_descriptions()
+        descriptions = next_pair.get_descriptions()
     except Exception:
         next_pair = None
-        pair_id = None
         descriptions = ["nothing", "nothing"]
         error = "no pairs"
-    return render_template("matchmake.html", user=user, next_pair=next_pair,
-                           pair_id=pair_id, error=error, 
+    return render_template("matchmake.html",
+                           user=user,
+                           next_pair=next_pair,
+                           error=error,
                            descriptions=descriptions)
 
 
@@ -180,11 +179,11 @@ def matches(user_id):
     user_id = request.form['user_id']
     user = get_user_from_user_id(user_id)
     match_list = user.get_match_list()
-    print "USER {} HAS MATCH LIST {}".format(user, match_list)
+    log.debug("USER {} HAS MATCH LIST {}".format(user, match_list))
     return render_template("matches.html", user=user)
 
 
-@app.route("/match/<match_id>", methods =['POST', 'GET'])
+@app.route("/match/<match_id>", methods=['POST', 'GET'])
 def match(match_id):
     match_id = request.form['match_id']
     user_id = request.form['user_id']
@@ -199,7 +198,7 @@ def match(match_id):
         otheruser_id = match.get_user_ids()[1]
         x = ""
     else:
-        user_id =  match.get_user_ids()[1]
+        user_id = match.get_user_ids()[1]
         otheruser_id = match.get_user_ids()[0]
         x = "to start wingmanning"
     print "match user ids are {} and {}, ids I'm using are {} and {}".format(match.get_user_ids()[0], match.get_user_ids()[1], user_id, otheruser_id)
@@ -212,11 +211,12 @@ def match(match_id):
                            conversation_messages=conversation_messages,
                            conversation_length=conversation_length, x=x)
 
-@app.route("/addingmessage", methods = ['POST', 'GET'])
+
+@app.route("/addingmessage", methods=['POST', 'GET'])
 def addingmessage():
     conversation_id = request.form['conversation_id']
     conversation = get_conversation_from_conversation_id(conversation_id)
-    print "conversation is: ", conversation 
+    print "conversation is: ", conversation
     match_id = request.form['match_id']
     user_id = request.form['user_id']
     user = get_user_from_user_id(user_id)
@@ -231,7 +231,6 @@ def addingmessage():
                            conversation_messages=conversation_messages,
                            conversation_length=conversation_length,
                            x="")
-
 
 
 @app.route('/intermediate', methods=['POST', 'GET'])
@@ -250,30 +249,26 @@ def home(user_id):
     user = get_user_from_user_id(user_id)
     return render_template("home.html", user=user)
 
+
 @app.route('/happy/<user_id>', methods=['POST', 'GET'])
 def happy(user_id):
-    print "HAPPY REACHED"
     pair_id = request.form['pair_shown_id']
     pair_matched = get_pair_from_pair_id(pair_id)
     user_id = request.form['user_id']
     user = get_user_from_user_id(user_id)
     user.make_pair_match(pair_matched)
-    print "Matched pair, wingman: {}, pair: {}".format(user,
-                                                       pair_matched)
     return render_template("happy.html", user=user,
                            pair_matched=pair_matched)
+
 
 @app.route('/sad/<user_id>', methods=['POST', 'GET'])
 def sad(user_id):
     pair_id = request.form['pair_shown_id']
-    print "SAD pair id is {}".format(pair_id)
     pair_shown = get_pair_from_pair_id(pair_id)
-    print "SAD pair shown is {}".format(pair_shown)
     user_id = request.form['user_id']
-    print "user id is {}".format(user_id)
     user = get_user_from_user_id(user_id)
     pair_shown.decline_this_pair(user_id)
-    print "Pair: {} declined by: {}".format(pair_shown, user)
+    log.debug("Pair: {} declined by: {}".format(pair_shown, user))
     return render_template("sad.html", user=user,
                            pair_shown=pair_shown)
 

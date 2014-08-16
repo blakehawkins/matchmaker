@@ -123,7 +123,7 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
         self.make_pairs_for_new_user()
-        log.debug("Starting User {}".format(self))
+        log.debug("Starting {}".format(self))
 
     def get_next_pair(self):
         pair_list = get_pair_list()
@@ -212,7 +212,7 @@ class Pair(db.Model):
     def start(self):
         db.session.add(self)
         db.session.commit()
-        log.debug("Starting pair: {}".format(self))
+        log.debug("Starting {}".format(self))
         
     def is_match(self):
         return self.is_this_a_match
@@ -247,7 +247,8 @@ class Pair(db.Model):
         db.session.commit()
 
     def pair_to_match(self, wingman_id):
-        log.debug("User {} matching {}".format(wingman_id, self))
+        wingman = get_user_from_user_id(wingman_id)
+        log.debug("User {} matching {}".format(wingman, self))
         match = Match(self, wingman_id)
         self.is_this_a_match = True
         db.session.commit()
@@ -269,9 +270,7 @@ class Match(db.Model):
     wingman_id = db.Column(db.Integer)
 
     def __init__(self, pair, wingman_id):
-        print "Pair.get_user_ids: ", pair.get_user_ids()
         self.pair_id = pair.id
-        print "Making new match with pair: ", self.pair_id
         self.user_ids = [pair.get_user_ids()[0], pair.get_user_ids()[1]]
         self.wingman_id = wingman_id
         self.yes_list = []
@@ -283,7 +282,7 @@ class Match(db.Model):
         db.session.add(self)
         # print "Added ", self, "to db"
         db.session.commit()
-        # print "Committed ", self, "to db"
+        log.debug("Starting {}".format(self))
         # print ("<Making Conversation between: {} and" +
         #       " {}>").format(self.user_ids[0], self.user_ids[1])
         conversation = Conversation(self, self.user_ids)
@@ -298,9 +297,6 @@ class Match(db.Model):
         self.wingman_conversation_id = wingman_conversation.id
         db.session.commit()
         convo_ids_2 = [self.wingman_id, self.user_ids[1]]
-        log.debug("<Making Conversation between: {} and {}>".format(
-            convo_ids_2[0],
-            convo_ids_2[1]))
         wingman_conversation = Conversation(self, convo_ids_2)
         wingman_conversation.start()
         self.wingman_conversation_id = wingman_conversation.id
@@ -337,7 +333,6 @@ class Conversation(db.Model):
     def __init__(self, match, user_ids):
         self.match_id = match.id
         self.user_ids = user_ids
-        print "user_ids in conversation set as {}".format(self.user_ids)
 
     def __repr__(self):
         return "<Conversation between: {} and {}>".format(self.user_ids[0],
@@ -345,9 +340,8 @@ class Conversation(db.Model):
 
     def start(self):
         db.session.add(self)
-        print "Added ", self, "to db"
         db.session.commit()
-        print "Committed ", self, "to db"
+        log.debug("Saving {}".format(self))
         i1 = get_user_from_user_id(self.user_ids[0]).username
         i2 = get_user_from_user_id(self.user_ids[1]).username
         message_text = ("Welcome to the conversation " +
@@ -396,6 +390,7 @@ class Message(db.Model):
     def start(self):
         db.session.add(self)
         db.session.commit()
+        log.debug("Starting {}".format(self))
 
     def get_message_string(self):
         if self.user_id == "admin":
@@ -425,6 +420,7 @@ class ExtinctCombo(db.Model):
     def start(self):
         db.session.add(self)
         db.session.commit()
+        log.debug("Saving {}".format(self))
 
     def are_you_this_extinct_combo(self, user_id, pair_id):
         correct_user = self.user_id == user_id

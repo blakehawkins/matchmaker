@@ -9,16 +9,16 @@
 {% endif %}
 <!--here include all fields we wish to carry through-->
   <form action="/profile/{{ user.id }}" method="post" name="profile">
-  <input type="hidden" value={{ user.id }} name="user_id" >
-  <p><input type="submit" value="My Profile"></p>
+    <input type="hidden" value={{ user.id }} name="user_id" >
+    <p><input type="submit" value="My Profile"></p>
   </form>
   <form action="/matches/{{ user.id }}" method="post" name="matches">
-  <input type="hidden" value={{ user.id }} name="user_id" >
-  <p><input type="submit" value="My Matches"></p>
+    <input type="hidden" value={{ user.id }} name="user_id" >
+    <p><input type="submit" value="My Matches"></p>
   </form>
   <form action="/matchmake/{{ user.id }}" method="post" name="matchmake">
-  <input type="hidden" value={{ user.id }} name="user_id" >
-  <p><input type="submit" value="Matchmake!"></p>
+    <input type="hidden" value={{ user.id }} name="user_id" >
+    <p><input type="submit" value="Matchmake!"></p>
   </form>
 
   <form action="/" method="post" name="stop">____________

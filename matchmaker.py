@@ -41,6 +41,7 @@ def init_db():
 
 @app.route('/', methods=['GET', 'POST'])
 def base():
+    print "poo"
     return render_template("base.html")
 
 

@@ -15,10 +15,10 @@ def is_combo_extinct(user_id, pair_id):
     extinct_combos = ExtinctCombo.query.filter_by(user_id=user_id).all()
     for extinct_combo in extinct_combos:
         if extinct_combo in ExtinctCombo.query.filter_by(pair_id=pair_id).all():
-            print "Combo is extinct: ", extinct_combo
+            log.debug("Combo is extinct: {}".format(extinct_combo))
             return extinct_combo
         else:
-            print "Combo is not extinct."
+            log.debug("Combo is not extinct: {}".format(extinct_combo))
             return False
     return False
 
@@ -39,7 +39,7 @@ def clear_all_users():
         db.session.delete(user)
 
     db.session.commit()
-    print "Deleted all users!"
+    log.debug("Deleted all users")
 
 
 def clear_all_pairs():
@@ -48,7 +48,7 @@ def clear_all_pairs():
         db.session.delete(pair)
 
     db.session.commit()
-    print "Deleted all pairs!"
+    log.debug("Deleted all pairs")
 
 
 def get_user_from_user_id(user_id):
@@ -76,21 +76,19 @@ def get_conversation_from_conversation_id(conversation_id):
     return conversation
 
 
-def get_user_conversations_in_match(match_id, user_id1, user_id2):
+# Returns the Conversation given two users in a match
+def get_user_conversation_in_match(match_id, user_id1, user_id2):
     all_conversations = Conversation.query.filter_by(match_id=match_id).all()
-    print "All conversations: ", all_conversations
-    print "user1 and user2: ", user_id1, user_id2
     user_id1 = int(user_id1)
     user_id2 = int(user_id2)
     for convo in all_conversations:
-        print "convo.user_ids", convo.user_ids
         if user_id1 in convo.user_ids:
-            print "user1 in convo"
             if user_id2 in convo.user_ids:
-                print "user2 in convo", convo
                 return convo
         else: 
-            print "users not in this convo"
+            user1 = get_user_from_user_id(user_id1)
+            user2 = get_user_from_user_id(user_id2)
+            log.debug("{}, {} not in {}".format(user1, user2, convo))
 
 
 class User(db.Model):
@@ -163,14 +161,13 @@ class User(db.Model):
         db.session.commit()
 
     def make_pair_match(self, pair):
-        log.debug("{} calling make_pair_match on pair: {}".format(self, pair))
         match = pair.pair_to_match(self.id)
         return match
 
     def get_match_list(self):
         list_of_matches = Match.query.all()
-        print "{}.get_match_list - list of matches is: {}".format(
-            self, list_of_matches)
+        log.debug("{}.get_match_list - list of matches is: {}".format(
+            self, list_of_matches))
         list_my_matches = []
         for match in list_of_matches:
             match_user_ids = match.get_user_ids()
@@ -180,7 +177,7 @@ class User(db.Model):
 
     def matches_as_wingman(self):
         list_of_matches = Match.query.all()
-        print "list of matches is: {}".format(list_of_matches)
+        log.debug("{} has matched: {}".format(self, list_of_matches))
         wingman_matches = []
         for match in list_of_matches:
             match_user_ids = match.get_user_ids()
@@ -205,9 +202,9 @@ class Pair(db.Model):
         self.is_this_a_match = False
 
     def __repr__(self):
-        user1_id = self.user_ids[0]
-        user2_id = self.user_ids[1]
-        return "<Pair {}, {}>".format(user1_id, user2_id)
+        user1 = get_user_from_user_id(self.user_ids[0])
+        user2 = get_user_from_user_id(self.user_ids[1])
+        return "<Pair {}, {}>".format(user1, user2)
 
     def start(self):
         db.session.add(self)
@@ -266,7 +263,8 @@ class Match(db.Model):
     pair_id = db.Column(db.Integer, unique=True)
     user_ids = db.Column(db.PickleType)
     conversaton_id = db.Column(db.Integer, unique=True)
-    wingman_conversation_id = db.Column(db.Integer, unique=True)
+    wingman_conversation_id1 = db.Column(db.Integer, unique=True)
+    wingman_conversation_id2 = db.Column(db.Integer, unique=True)
     wingman_id = db.Column(db.Integer)
 
     def __init__(self, pair, wingman_id):
@@ -276,30 +274,38 @@ class Match(db.Model):
         self.yes_list = []
 
     def __repr__(self):
-        return "<Match {}, {}>".format(self.user_ids[0], self.user_ids[1])
+        return "<Match {}, {}>".format(
+            get_user_from_user_id(self.user_ids[0]),
+            get_user_from_user_id(self.user_ids[1]))
 
+    ##
+    # Save this match to the database and initialise with three conversations
+    # - primary - is the two users
+    # - wingman1 - is wingman with user[0]
+    # - wingman2 - is wingman with user[1]
     def start(self):
         db.session.add(self)
-        # print "Added ", self, "to db"
         db.session.commit()
         log.debug("Starting {}".format(self))
-        # print ("<Making Conversation between: {} and" +
-        #       " {}>").format(self.user_ids[0], self.user_ids[1])
+
+        # Making primary conversation
         conversation = Conversation(self, self.user_ids)
         conversation.start()
         self.conversation_id = conversation.id
         db.session.commit()
+        
+        # Making wingman conversation with first user in match
         convo_ids_1 = [self.wingman_id, self.user_ids[0]]
-        # print "<Making Conversation between: {} and {}>".format(convo_ids_1[0],
-        #                                                        convo_ids_1[1])
         wingman_conversation = Conversation(self, convo_ids_1)
         wingman_conversation.start()
-        self.wingman_conversation_id = wingman_conversation.id
+        self.wingman_conversation_id1 = wingman_conversation.id
         db.session.commit()
+
+        # Making wingman conversation with second user in match
         convo_ids_2 = [self.wingman_id, self.user_ids[1]]
         wingman_conversation = Conversation(self, convo_ids_2)
         wingman_conversation.start()
-        self.wingman_conversation_id = wingman_conversation.id
+        self.wingman_conversation_id2 = wingman_conversation.id
         db.session.commit()
 
     def both_say_yes(self):
@@ -335,13 +341,14 @@ class Conversation(db.Model):
         self.user_ids = user_ids
 
     def __repr__(self):
-        return "<Conversation between: {} and {}>".format(self.user_ids[0],
-                                                          self.user_ids[1])
+        return "<Conversation between: {} and {}>".format(
+            get_user_from_user_id(self.user_ids[0]),
+            get_user_from_user_id(self.user_ids[1]))
 
     def start(self):
         db.session.add(self)
         db.session.commit()
-        log.debug("Saving {}".format(self))
+        log.debug("Starting {}".format(self))
         i1 = get_user_from_user_id(self.user_ids[0]).username
         i2 = get_user_from_user_id(self.user_ids[1]).username
         message_text = ("Welcome to the conversation " +
@@ -378,13 +385,9 @@ class Message(db.Model):
         self.message_text = message_text
         self.user_id = user_id
         self.conversation_id = conversation_id
-        if user_id is "admin":
-            print "Admin message."
-        else:
-            print "User message."
 
     def __repr__(self):
-        string = "<message from {}> with id: {}".format(self.user_id, self.id)
+        string = "<Message from {}> with id: {}".format(self.user_id, self.id)
         return string
 
     def start(self):
@@ -395,10 +398,8 @@ class Message(db.Model):
     def get_message_string(self):
         if self.user_id == "admin":
             message_to_print = self.message_text
-            print "sending out admin message"
         else:
             # Always user_id defined in case of user message
-            print "get_message_string message has user id: ", self.user_id
             user = get_user_from_user_id(self.user_id)
             username = user.get_username()
             message_to_print = username + " says: " + self.message_text
@@ -415,7 +416,9 @@ class ExtinctCombo(db.Model):
         self.pair_id = pair_id
 
     def __repr__(self):
-        return "<Extinct combination with user: {}, pair: {}>".format(self.user_id, self.pair_id)
+        return "<Extinct combination with user: {}, pair: {}>".format(
+            self.user_id,
+            self.pair_id)
 
     def start(self):
         db.session.add(self)

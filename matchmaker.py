@@ -12,7 +12,7 @@ from models import db, User, Match, Pair, Conversation, Message, ExtinctCombo,\
     get_pair_list, get_user_list, \
     clear_all_users, clear_all_pairs, get_user_from_user_id, \
     get_pair_from_pair_id, get_match_from_match_id, \
-    get_user_conversations_in_match, get_conversation_from_conversation_id
+    get_user_conversation_in_match, get_conversation_from_conversation_id
 db.drop_all()
 db.create_all()
 
@@ -39,63 +39,9 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
 
-#class User(Base):
-#    __tablename__ = 'users'
-#    id = Column(Integer, primary_key=True)
-#    name = Column(String(60))
-#    email = Column(String(200))
-#    openid = Column(String(200))
-
-#    def __init__(self, name, email, openid):
-#        self.name = name
-#        self.email = email
-#        self.openid = openid
-
-
-@app.before_request
-def before_request():
-    g.user = None
-    if 'openid' in session:
-        g.user = User.query.filter_by(openid=session['openid']).first()
-
-
-@app.after_request
-def after_request(response):
-    db_session.remove()
-    return response
-
-
-@app.route('/index')
-def index():
-    if 'email' in session:
-        return 'Logged in as %s' % escape(session['username'])
-        # EVENTUALLY WILL HAVE here link to username
-    else:
-        return 'You are not logged in'
-
-
 @app.route('/', methods=['GET', 'POST'])
 def base():
     return render_template("base.html")
-
-@app.route('/facebook', methods=['GET', 'POST'])
-def facebook():
-    return render_template("facebook.html")
-
-@app.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
-def login():
-    if g.user is not None:
-        return redirect(oid.get_next_url())
-    if request.method == 'POST':
-        openid = request.form.get('openid')
-        if openid:
-            pape_req = pape.Request([])
-            return oid.try_login(openid, ask_for=['email', 'nickname'],
-                                 ask_for_optional=['fullname'],
-                                 extensions=[pape_req])
-    return render_template('login.html', next=oid.get_next_url(),
-                           error=oid.fetch_error())
 
 
 @oid.after_login
@@ -131,14 +77,6 @@ def create_profile():
             db_session.commit()
             return redirect(oid.get_next_url())
     return render_template('create_profile.html', next_url=oid.get_next_url())
-
-
-@app.route('/logout')
-def logout():
-    session.pop('openid', None)
-    flash(u'You have been signed out')
-#    return redirect(oid.get_next_url())
-    return render_template("base.html")
 
 
 @app.route("/signup")
@@ -178,34 +116,32 @@ def matchmake(user_id):
 def matches(user_id):
     user_id = request.form['user_id']
     user = get_user_from_user_id(user_id)
-    match_list = user.get_match_list()
-    log.debug("USER {} HAS MATCH LIST {}".format(user, match_list))
     return render_template("matches.html", user=user)
 
 
 @app.route("/match/<match_id>", methods=['POST', 'GET'])
 def match(match_id):
+
+    # Get User and Match
     match_id = request.form['match_id']
     user_id = request.form['user_id']
     user = get_user_from_user_id(user_id)
     match = get_match_from_match_id(match_id)
-    print " user_id is {}".format(user_id)
-    print " match user ids are {}".format(match.get_user_ids())
-    if int(user_id) is int(match.get_user_ids()[1]):
+
+    # Decide which Users the Conversation is between
+    x = ""
+    if user.id is match.get_user_ids()[1]:
         otheruser_id = match.get_user_ids()[0]
-        x = ""
-    elif int(user_id) is int(match.get_user_ids()[0]):
+    elif user.id is match.get_user_ids()[0]:
         otheruser_id = match.get_user_ids()[1]
-        x = ""
     else:
         user_id = match.get_user_ids()[1]
         otheruser_id = match.get_user_ids()[0]
-        x = "to start wingmanning"
+        x = " as wingman"
     print "match user ids are {} and {}, ids I'm using are {} and {}".format(match.get_user_ids()[0], match.get_user_ids()[1], user_id, otheruser_id)
-    conversation = get_user_conversations_in_match(match_id, user_id, otheruser_id)
+    conversation = get_user_conversation_in_match(match_id, user_id, otheruser_id)
     conversation_messages = conversation.get_message_strings_list()
     conversation_length = len(conversation_messages)
-    print "FIRST type of conv_messages is {} ".format(type(conversation_messages))
     return render_template("match.html", user=user, match=match,
                            conversation=conversation,
                            conversation_messages=conversation_messages,

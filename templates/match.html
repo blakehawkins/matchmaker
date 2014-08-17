@@ -9,14 +9,14 @@
 </form>
 
 <h1> Match page for {{ match.get_usernames()[0] }} and {{ match.get_usernames()[1] }} </h1>
-
+<h3>Logged in as {{user.username}}.</h3>
 <!-- conversation -->
 {% for i in range(conversation_length) %}
-<h2>{{ conversation_messages[i] }}</h2>
+<p>{{ conversation_messages[i] }}</p>
 {% endfor %}
 <form action="/addingmessage" method=post>
     <dl>
-      <dt>Add Message {{ x }}:
+      <dt>Add Message{{ x }}:
       <dd><input type=text name=message size=30 value="{{ request.values.message }}">
     </dl>
     <p>
